@@ -31,6 +31,11 @@ def upsample(img):
         return img
     return resize(img, (img_size_target, img_size_target), mode='constant', preserve_range=True)
 
+def downsample(img):
+    if img_size_ori == img_size_target:
+        return img
+    return resize(img, (img_size_ori, img_size_ori), mode='constant', preserve_range=True)
+
 
 train_df = pd.read_csv(PROJECT_ROOT.joinpath('data/raw/train.csv'), index_col="id", usecols=[0])
 depths_df = pd.read_csv(PROJECT_ROOT.joinpath('data/raw/depths.csv'), index_col="id")
