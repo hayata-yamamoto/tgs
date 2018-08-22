@@ -353,7 +353,7 @@ def RLenc(img, order='F', format=True):
 
 
 x_test = np.array(
-    [upsample(np.array(load_img("../input/test/images/{}.png".format(idx), grayscale=True))) / 255 for idx in
+    [upsample(np.array(load_img(PROJECT_ROOT.joinpath(f'data/raw/images/{idx}.png'), grayscale=True))) / 255 for idx in
      test_df.index]).reshape(-1, img_size_target, img_size_target, 1)
 
 preds_test = model.predict(x_test)
