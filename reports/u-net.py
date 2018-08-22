@@ -278,7 +278,7 @@ def iou_metric_batch(y_true_in, y_pred_in):
 
 
 thresholds = np.linspace(0, 1, 50)
-ious = np.array([iou_metric_batch(y_valid_ori, np.int32(preds_valid > threshold)) for threshold in tqdm_notebook(thresholds)])
+ious = np.array([iou_metric_batch(y_valid_ori, np.int32(preds_valid > threshold)) for threshold in thresholds])
 
 
 threshold_best_index = np.argmax(ious[9:-10]) + 9
