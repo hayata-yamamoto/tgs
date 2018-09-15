@@ -1,17 +1,13 @@
 import numpy as np
 import pandas as pd
 from random import randint
-import matplotlib.pyplot as plt
-plt.style.use('seaborn-white')
-import seaborn as sns
-sns.set_style('white')
 
 from sklearn.model_selection import train_test_split
 from skimage.transform import resize
 from pathlib import Path
-from keras.preprocessing.image import load_img
+from keras.preprocessing.image import load_img, ImageDataGenerator
 from keras import Model
-from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 from keras.models import load_model
 from keras.optimizers import Adam
 from keras.utils.vis_utils import plot_model
@@ -23,6 +19,7 @@ def upsample(img):
     if img_size_ori == img_size_target:
         return img
     return resize(img, (img_size_target, img_size_target), mode='constant', preserve_range=True)
+
 
 def downsample(img):
     if img_size_ori == img_size_target:
@@ -200,12 +197,10 @@ def iou_metric_batch(y_true_in, y_pred_in):
     return np.mean(metric)
 
 
-
 img_size_ori = 101
 img_size_target = 128
 
 PROJECT_ROOT = Path(__file__).absolute().parent.parent
-print(PROJECT_ROOT)
 
 train_df = pd.read_csv(PROJECT_ROOT.joinpath('data/raw/train.csv'), index_col="id", usecols=[0])
 depths_df = pd.read_csv(PROJECT_ROOT.joinpath('data/raw/depths.csv'), index_col="id")
@@ -236,21 +231,30 @@ model.summary()
 x_train = np.append(x_train, [np.fliplr(x) for x in x_train], axis=0)
 y_train = np.append(y_train, [np.fliplr(x) for x in y_train], axis=0)
 
-fig, axs = plt.subplots(2, 10, figsize=(15,3))
-
 early_stopping = EarlyStopping(patience=10, verbose=1)
 model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1)
 reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5, min_lr=0.00001, verbose=1)
+tensorboard = TensorBoard()
 
 epochs = 200
-batch_size = 32
+batch_size = 64
 
-history = model.fit(x_train, y_train,
-                    validation_data=[x_valid, y_valid],
-                    epochs=epochs,
-                    batch_size=batch_size,
-                    callbacks=[early_stopping, model_checkpoint, reduce_lr])
+generator = ImageDataGenerator(
+    featurewise_center=True,
+)
+generator.fit(x_train)
 
+# history = model.fit(x_train, y_train,
+#                     validation_data=[x_valid, y_valid],
+#                     epochs=epochs,
+#                     batch_size=batch_size,
+#                     callbacks=[early_stopping, model_checkpoint, reduce_lr, tensorboard])
+
+history = model.fit_generator(generator.flow(x_train, y_train, batch_size=batch_size),
+                              validation_data=[x_valid, y_valid],
+                              epochs=epochs,
+                              steps_per_epoch=len(x_train) / batch_size,
+                              callbacks=[early_stopping, model_checkpoint, reduce_lr, tensorboard])
 
 model = load_model("./keras.model")
 
