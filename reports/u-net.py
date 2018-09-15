@@ -291,3 +291,4 @@ sub = pd.DataFrame.from_dict(pred_dict,orient='index')
 sub.index.names = ['id']
 sub.columns = ['rle_mask']
 sub.to_csv('submission.csv')
+print('Created file.')
