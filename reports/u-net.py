@@ -12,7 +12,7 @@ from keras.models import load_model
 from keras.optimizers import Adam
 from keras.utils.vis_utils import plot_model
 from keras.preprocessing.image import ImageDataGenerator
-from keras.layers import Input, Conv2D, Conv2DTranspose, MaxPooling2D, concatenate, Dropout
+from keras.layers import Input, Conv2D, Conv2DTranspose, MaxPooling2D, concatenate, Dropout, AveragePooling2D
 
 
 def upsample(img):
@@ -37,25 +37,29 @@ def build_model(input_layer, start_neurons):
     # 128 -> 64
     conv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(input_layer)
     conv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(conv1)
-    pool1 = MaxPooling2D((2, 2))(conv1)
+    pool1 = AveragePooling2D((2, 2))(conv1)
+    # pool1 = MaxPooling2D((2, 2))(conv1)
     pool1 = Dropout(0.25)(pool1)
 
     # 64 -> 32
     conv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(pool1)
     conv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(conv2)
-    pool2 = MaxPooling2D((2, 2))(conv2)
+    pool2 = AveragePooling2D((2, 2))(conv2)
+    # pool2 = MaxPooling2D((2, 2))(conv2)
     pool2 = Dropout(0.5)(pool2)
 
     # 32 -> 16
     conv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu", padding="same")(pool2)
     conv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu", padding="same")(conv3)
-    pool3 = MaxPooling2D((2, 2))(conv3)
+    pool3 = AveragePooling2D((2, 2))(conv3)
+    # pool3 = MaxPooling2D((2, 2))(conv3)
     pool3 = Dropout(0.5)(pool3)
 
     # 16 -> 8
     conv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu", padding="same")(pool3)
     conv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu", padding="same")(conv4)
-    pool4 = MaxPooling2D((2, 2))(conv4)
+    pool4 = AveragePooling2D((2, 2))(conv4)
+    # pool4 = MaxPooling2D((2, 2))(conv4)
     pool4 = Dropout(0.5)(pool4)
 
     # Middle
