@@ -288,7 +288,7 @@ exp.end()
 #                               steps_per_epoch=len(x_train) / batch_size,
 #                               callbacks=[early_stopping, model_checkpoint, reduce_lr, tensorboard])
 
-model = load_model("./keras.model", custom_objects={'loss': dice_coef_loss})
+model = load_model("./keras.model", custom_objects={'dice_coef_loss': dice_coef_loss})
 
 
 preds_valid = model.predict(x_valid).reshape(-1, img_size_target, img_size_target)
