@@ -239,22 +239,22 @@ tensorboard = TensorBoard()
 epochs = 200
 batch_size = 64
 
-generator = ImageDataGenerator(
-    featurewise_center=True,
-)
-generator.fit(x_train)
+# generator = ImageDataGenerator(
+#     featurewise_center=True,
+# )
+# generator.fit(x_train)
 
-# history = model.fit(x_train, y_train,
-#                     validation_data=[x_valid, y_valid],
-#                     epochs=epochs,
-#                     batch_size=batch_size,
-#                     callbacks=[early_stopping, model_checkpoint, reduce_lr, tensorboard])
+history = model.fit(x_train, y_train,
+                    validation_data=[x_valid, y_valid],
+                    epochs=epochs,
+                    batch_size=batch_size,
+                    callbacks=[model_checkpoint, tensorboard])
 
-history = model.fit_generator(generator.flow(x_train, y_train, batch_size=batch_size),
-                              validation_data=[x_valid, y_valid],
-                              epochs=epochs,
-                              steps_per_epoch=len(x_train) / batch_size,
-                              callbacks=[early_stopping, model_checkpoint, reduce_lr, tensorboard])
+# history = model.fit_generator(generator.flow(x_train, y_train, batch_size=batch_size),
+#                               validation_data=[x_valid, y_valid],
+#                               epochs=epochs,
+#                               steps_per_epoch=len(x_train) / batch_size,
+#                               callbacks=[early_stopping, model_checkpoint, reduce_lr, tensorboard])
 
 model = load_model("./keras.model")
 
