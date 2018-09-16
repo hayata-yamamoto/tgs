@@ -39,6 +39,9 @@ def dice_coef(y_true, y_pred):
     intersection = K.sum(y_true * y_pred)
     return 2.0 * intersection / (K.sum(y_true) + K.sum(y_pred) + 1)
 
+def dice_coef_loss(y_true, y_pred):
+    return 1.0 - dice_coef(y_true, y_pred)
+
 
 def build_model(input_layer, start_neurons):
     # 128 -> 64
@@ -236,14 +239,14 @@ input_layer = Input((img_size_target, img_size_target, 1))
 output_layer = build_model(input_layer, 16)
 
 model = Model(input_layer, output_layer)
-model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy", dice_coef])
+model.compile(loss=dice_coef_loss, optimizer="adam", metrics=["accuracy", dice_coef])
 model.summary()
 
 x_train = np.append(x_train, [np.fliplr(x) for x in x_train], axis=0)
 y_train = np.append(y_train, [np.fliplr(x) for x in y_train], axis=0)
 
-early_stopping = EarlyStopping(monitor='val_dice_coef', patience=30, verbose=1, mode='max')
-model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1, monitor='val_dice_coef', mode='max')
+early_stopping = EarlyStopping(patience=30, verbose=1)
+model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1)
 reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5, min_lr=0.00001, verbose=1)
 tensorboard = TensorBoard()
 
