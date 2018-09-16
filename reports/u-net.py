@@ -7,14 +7,29 @@ from skimage.transform import resize
 from pathlib import Path
 from keras.preprocessing.image import load_img, ImageDataGenerator
 from keras import Model
-from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
+from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard, Callback
 from keras.models import load_model
 import keras.backend as K
 from keras.optimizers import Adam
 from keras.utils.vis_utils import plot_model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.layers import Input, Conv2D, Conv2DTranspose, MaxPooling2D, concatenate, Dropout, AveragePooling2D
+from hyperdash import Experiment
 
+exp = Experiment('TGS Unet')
+
+
+class Hyperdash(Callback):
+    def __init__(self, entries, exp):
+        super(Hyperdash, self).__init__()
+        self.entries = entries
+        self.exp = exp
+
+    def on_epoch_end(self, epoch, logs=None):
+        for entrie in self.entries:
+            log = logs.get(entrie)
+            if log is not None:
+                self.exp.metric(entrie, log)
 
 def upsample(img):
     if img_size_ori == img_size_target:
@@ -245,6 +260,8 @@ model.summary()
 x_train = np.append(x_train, [np.fliplr(x) for x in x_train], axis=0)
 y_train = np.append(y_train, [np.fliplr(x) for x in y_train], axis=0)
 
+hyperdash = Hyperdash(['loss','val_loss'], exp)
+
 early_stopping = EarlyStopping(patience=30, verbose=1)
 model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1)
 reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5, min_lr=0.00001, verbose=1)
@@ -262,7 +279,8 @@ history = model.fit(x_train, y_train,
                     validation_data=[x_valid, y_valid],
                     epochs=epochs,
                     batch_size=batch_size,
-                    callbacks=[model_checkpoint, tensorboard, early_stopping])
+                    callbacks=[model_checkpoint, tensorboard, early_stopping, hyperdash])
+exp.end()
 
 # history = model.fit_generator(generator.flow(x_train, y_train, batch_size=batch_size),
 #                               validation_data=[x_valid, y_valid],
