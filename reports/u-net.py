@@ -243,7 +243,7 @@ x_train = np.append(x_train, [np.fliplr(x) for x in x_train], axis=0)
 y_train = np.append(y_train, [np.fliplr(x) for x in y_train], axis=0)
 
 early_stopping = EarlyStopping(monitor='val_dice_coef', patience=30, verbose=1, mode='max')
-model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1, monitor='val_dice_coef')
+model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1, monitor='val_dice_coef', mode='max')
 reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5, min_lr=0.00001, verbose=1)
 tensorboard = TensorBoard()
 
