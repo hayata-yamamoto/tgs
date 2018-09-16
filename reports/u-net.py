@@ -9,6 +9,7 @@ from keras.preprocessing.image import load_img, ImageDataGenerator
 from keras import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 from keras.models import load_model
+import keras.backend as K
 from keras.optimizers import Adam
 from keras.utils.vis_utils import plot_model
 from keras.preprocessing.image import ImageDataGenerator
