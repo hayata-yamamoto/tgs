@@ -219,7 +219,7 @@ ids_train, ids_valid, x_train, x_valid, y_train, y_valid, cov_train, cov_test, d
         np.array(train_df.masks.map(upsample).tolist()).reshape(-1, img_size_target, img_size_target, 1),
         train_df.coverage.values,
         train_df.z.values,
-        test_size=0.2, stratify=train_df.coverage_class, random_state=1337)
+        test_size=0.2, stratify=train_df.coverage_class)
 
 input_layer = Input((img_size_target, img_size_target, 1))
 output_layer = build_model(input_layer, 16)
@@ -231,7 +231,7 @@ model.summary()
 x_train = np.append(x_train, [np.fliplr(x) for x in x_train], axis=0)
 y_train = np.append(y_train, [np.fliplr(x) for x in y_train], axis=0)
 
-early_stopping = EarlyStopping(patience=10, verbose=1)
+early_stopping = EarlyStopping(patience=30, verbose=1)
 model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1)
 reduce_lr = ReduceLROnPlateau(factor=0.1, patience=5, min_lr=0.00001, verbose=1)
 tensorboard = TensorBoard()
@@ -248,7 +248,7 @@ history = model.fit(x_train, y_train,
                     validation_data=[x_valid, y_valid],
                     epochs=epochs,
                     batch_size=batch_size,
-                    callbacks=[model_checkpoint, tensorboard])
+                    callbacks=[model_checkpoint, tensorboard, early_stopping])
 
 # history = model.fit_generator(generator.flow(x_train, y_train, batch_size=batch_size),
 #                               validation_data=[x_valid, y_valid],
